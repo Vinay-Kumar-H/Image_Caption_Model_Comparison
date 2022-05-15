@@ -499,8 +499,10 @@ num_train_steps = len(train_dataset) * EPOCHS
 num_warmup_steps = num_train_steps // 15
 lr_schedule = LRSchedule(post_warmup_learning_rate=1e-4, warmup_steps=num_warmup_steps)
 
+start = time.time()
 # Compile the model
 caption_model.compile(optimizer=keras.optimizers.Adam(lr_schedule), loss=cross_entropy)
+print(f'Time taken for Training {time.time()-start:.2f} sec\n')
 
 # Fit the model
 caption_model.fit(
