@@ -9,8 +9,8 @@ RNN and LSTM we will be using the concept of attention for the project.
 
 #Repository
 It consist of python file for 2 models we are comparing.
-Attention_Model.py -> Is our main Model we are comparing to pre existing(older) model to shows its advantages over pre-existing model.
-Model2.py -> pre existing(older) model we are using to compare.
+Attention_Model.py -> Is our main Model [With Attention].
+Model2.py -> Model  [Without Attention].
 #Below steps are used to execute it in HPC server
 git clone https://github.com/Vinay-Kumar-H/Image_Caption_Model_Comparison Image_Caption_Model_Comparison
 #To secure gpu resource
