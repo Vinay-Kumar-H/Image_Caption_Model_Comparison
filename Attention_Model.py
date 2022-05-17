@@ -20,12 +20,32 @@ import pickle
 print("python {}".format(sys.version))
 print("keras version {}".format(keras.__version__)); del keras
 print("tensorflow version {}".format(tf.__version__))
+def runcmd(cmd, verbose = False, *args, **kwargs):
+
+    process = subprocess.Popen(
+        cmd,
+        stdout = subprocess.PIPE,
+        stderr = subprocess.PIPE,
+        text = True,
+        shell = True
+    )
+    std_out, std_err = process.communicate()
+    if verbose:
+        print(std_out.strip(), std_err)
+    pass
 
 #!wget -q https://github.com/jbrownlee/Datasets/releases/download/Flickr8k/Flickr8k_Dataset.zip
 #!wget -q https://github.com/jbrownlee/Datasets/releases/download/Flickr8k/Flickr8k_text.zip
 #!unzip -qq Flickr8k_Dataset.zip
 #!unzip -qq Flickr8k_text.zip
 #!rm Flickr8k_Dataset.zip Flickr8k_text.zip
+##################################Download the dataset
+runcmd("wget  https://github.com/jbrownlee/Datasets/releases/download/Flickr8k/Flickr8k_Dataset.zip", verbose = True)
+runcmd("wget  https://github.com/jbrownlee/Datasets/releases/download/Flickr8k/Flickr8k_text.zip", verbose = True)
+
+runcmd("unzip  Flickr8k_Dataset.zip",verbose=True)
+runcmd("unzip  Flickr8k_text.zip",verbose=True)
+runcmd("rm Flickr8k_Dataset.zip Flickr8k_text.zip",verbose=True)
 
 ## The location of the Flickr8K_ photos
 dir_Flickr_jpg = "Flicker8k_Dataset"
@@ -138,7 +158,7 @@ plthist(dfword.iloc[-topn:,:],
 img1= plt.imread("Flicker8k_Dataset/1000268201_693b08cb0e.jpg")
 plt.imshow(img1)
 print(f"Shape of the image: {img1.shape}")
-#make a list of images and caption
+#making a list of images and caption
 img = data["filename"].tolist()
 caption = data["caption"].tolist()
 print(f"len(img) : {len(img)}")
@@ -188,14 +208,13 @@ hidden_layer = image_model.layers[-1].output
 
 image_features_extract_model = tf.keras.Model(new_input, hidden_layer)
 image_features_extract_model.summary()
-# Get unique images
+# Getting unique images
 encode_train = sorted(set(img_name_vector))
 
-# Feel free to change batch_size according to your system configuration
 image_dataset = tf.data.Dataset.from_tensor_slices(encode_train)
 image_dataset = image_dataset.map(load_image, num_parallel_calls=tf.data.experimental.AUTOTUNE).batch(64)
 
-print(f"Let's check the BatchDataset shapes--> {image_dataset}")
+#print(f"the BatchDataset shapes--> {image_dataset}")
 from tqdm import tqdm
 
 #%%time
@@ -208,11 +227,11 @@ for img, path in tqdm(image_dataset):
     path_of_feature = p.numpy().decode("utf-8")
     np.save(path_of_feature, bf.numpy())
 bf.numpy().shape
-print(batch_features.numpy().shape)
-# Find the maximum length of any caption in our dataset
+#print(batch_features.numpy().shape)
+# Finding the maximum length of any caption in our dataset
 def calc_max_length(tensor):
     return max(len(t) for t in tensor)
-# Choose the top 5000 words from the vocabulary
+# Choosing the top 5000 words from the vocabulary
 top_k = 5000
 tokenizer = tf.keras.preprocessing.text.Tokenizer(num_words=top_k,
                                                   oov_token="<unk>",
@@ -225,15 +244,13 @@ tokenizer.word_index['<pad>'] = 0
 tokenizer.index_word[0] = '<pad>'
 
 
-# Create the tokenized vectors
+# tokenized vectors
 train_seqs = tokenizer.texts_to_sequences(train_captions)
 
-# Pad each vector to the max_length of the captions
-# If you do not provide a max_length value, pad_sequences calculates it automatically
 cap_vector = tf.keras.preprocessing.sequence.pad_sequences(train_seqs, padding='post')
 
 
-print(cap_vector.shape)
+#print(cap_vector.shape)
 
 # Calculates the max_length, which is used to store the attention weights
 max_length = calc_max_length(train_seqs)
@@ -253,12 +270,11 @@ embedding_dim = 256
 units = 512
 vocab_size = len(tokenizer.word_index) + 1
 num_steps = len(img_name_train) // BATCH_SIZE
-# Shape of the vector extracted from InceptionV3 is (64, 2048)
 # These two variables represent that vector shape
 features_shape = 512
 attention_features_shape = 49
 
-# Load the numpy files
+
 def map_func(img_name, cap):
   img_tensor = np.load(img_name.decode('utf-8')+'.npy')
   return img_tensor, cap
@@ -266,7 +282,7 @@ def map_func(img_name, cap):
 
 dataset = tf.data.Dataset.from_tensor_slices((img_name_train, cap_train))
 
-# Use map to load the numpy files in parallel
+# Using map to load the numpy files in parallel
 dataset = dataset.map(lambda item1, item2: tf.numpy_function(
           map_func, [item1, item2], [tf.float32, tf.int32]),
           num_parallel_calls=tf.data.experimental.AUTOTUNE)
@@ -302,7 +318,6 @@ class BahdanauAttention(tf.keras.Model):
     return context_vector, attention_weights
     
 class CNN_Encoder(tf.keras.Model):
-    # Since you have already extracted the features and dumped it using pickle
     # This encoder passes those features through a Fully connected layer
     def __init__(self, embedding_dim):
         super(CNN_Encoder, self).__init__()
@@ -358,9 +373,9 @@ encoder = CNN_Encoder(embedding_dim)
 decoder = RNN_Decoder(embedding_dim, units, vocab_size)
 
 
-encoder.summary()
+#encoder.summary()
 #decoder.build((64,512))
-decoder.summary()
+#decoder.summary()
 max_length
 optimizer = tf.keras.optimizers.Adam()
 loss_object = tf.keras.losses.SparseCategoricalCrossentropy(
@@ -555,4 +570,3 @@ print ('Prediction Caption:', ' '.join(result))
 plot_attention(image, result, attention_plot)
 # opening the image
 Image.open(img_name_val[rid])
-
