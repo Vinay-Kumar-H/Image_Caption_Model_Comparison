@@ -28,5 +28,6 @@ conda install pytorch torchvision tensorflow
 python --version;
 python ./Attention_Model.py
 python ./Model2.py
+
 #
 Attention does not let the model overfit and also reduces the time to train drastically resulting in  more human like captions.
