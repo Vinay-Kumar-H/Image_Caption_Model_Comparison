@@ -17,6 +17,32 @@ from keras.layers import Input, Dense, LSTM, Embedding, Dropout
 # small library for seeing the progress of loops.
 from tqdm.notebook import tqdm as tqdm
 tqdm().pandas()
+def runcmd(cmd, verbose = False, *args, **kwargs):
+
+    process = subprocess.Popen(
+        cmd,
+        stdout = subprocess.PIPE,
+        stderr = subprocess.PIPE,
+        text = True,
+        shell = True
+    )
+    std_out, std_err = process.communicate()
+    if verbose:
+        print(std_out.strip(), std_err)
+    pass
+
+#!wget -q https://github.com/jbrownlee/Datasets/releases/download/Flickr8k/Flickr8k_Dataset.zip
+#!wget -q https://github.com/jbrownlee/Datasets/releases/download/Flickr8k/Flickr8k_text.zip
+#!unzip -qq Flickr8k_Dataset.zip
+#!unzip -qq Flickr8k_text.zip
+#!rm Flickr8k_Dataset.zip Flickr8k_text.zip
+##################################Download the dataset
+runcmd("wget  https://github.com/jbrownlee/Datasets/releases/download/Flickr8k/Flickr8k_Dataset.zip", verbose = True)
+runcmd("wget  https://github.com/jbrownlee/Datasets/releases/download/Flickr8k/Flickr8k_text.zip", verbose = True)
+
+runcmd("unzip  Flickr8k_Dataset.zip",verbose=True)
+runcmd("unzip  Flickr8k_text.zip",verbose=True)
+runcmd("rm Flickr8k_Dataset.zip Flickr8k_text.zip",verbose=True)
 
 # Loading a text file into memory
 
@@ -83,11 +109,7 @@ def save_descriptions(descriptions, filename):
     file.write(data)
     file.close()
     
-!wget -q https://github.com/jbrownlee/Datasets/releases/download/Flickr8k/Flickr8k_Dataset.zip
-!wget -q https://github.com/jbrownlee/Datasets/releases/download/Flickr8k/Flickr8k_text.zip
-!unzip -qq Flickr8k_Dataset.zip
-!unzip -qq Flickr8k_text.zip
-!rm Flickr8k_Dataset.zip Flickr8k_text.zip
+
 dataset_images = "Flicker8k_Dataset"
 
 #we prepare our text data
